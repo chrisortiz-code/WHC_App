@@ -200,7 +200,6 @@ class Table:
         remove_confirm = ctk.CTkButton(self.window, text="Confirm", command=self.read_del)
         remove_confirm.grid(row=6, column=0, padx=5)
         button = ctk.CTkButton(self.window, text="Close", command=self.window.destroy)
-        input_frame(self)
         button.grid(row=7, column=0, padx=5)
         self.frame_bottom = ctk.CTkFrame(self.window)
         self.frame_bottom.grid(row=8, column=0)
@@ -253,9 +252,11 @@ class App():
     favourites = []
     tab_buttons=[]
 
+
     def __init__(self):
         self.window = ctk.CTk()
         self.get_databases()
+        print(self.dbclass,self.dbnames)
 
         # configure window
         self.window.title("WHMC Database")
@@ -319,12 +320,10 @@ class App():
             p = Database(i)
             self.dbclass.append(p)
             self.dbnames.append(p.name)
-        # Return the list of .db paths
-        return db_files
 
-    def load_all_dbs(self):
-        for k in self.dbclass:
-            (k)
+    # def load_all_dbs(self):
+    #     for k in self.dbclass:
+    #         (k)
 
     def create_database(self):
         dialog = ctk.CTkInputDialog(text="Database Name", title="Create Database")
@@ -413,12 +412,14 @@ class App():
     def load_tabsBox(self):
         self.tabview = ctk.CTkTabview(self.window, width=600)
         self.tabview.grid(row=0, column=1, columnspan=3, padx=(20, 20), sticky="nsew")
-
+        self.loaded = []
         for i in self.dbclass:
-            self.tabview.add(i.name)
-            self.tabview.tab(i.name).grid_columnconfigure((0, 1, 2, 3), weight=1)
-            self.tabview.tab(i.name).grid_rowconfigure((0, 1, 2, 3), weight=1)
-            self.table_buttons(i)
+            if i.name not in self.loaded:
+                self.loaded.append(i.name)
+                self.tabview.add(i.name)
+                self.tabview.tab(i.name).grid_columnconfigure((0, 1, 2, 3), weight=1)
+                self.tabview.tab(i.name).grid_rowconfigure((0, 1, 2, 3), weight=1)
+                self.table_buttons(i)
 
 
         #self.tabview.tab("DB1").grid_columnconfigure((0, 1, 2, 3), weight=1)   # configure grid of individual tabs
@@ -511,9 +512,12 @@ class App():
 
         val.replace(" ", "_")
         val+=".db"
-        sqlite3.connect(val)
-        self.dbclass.append(Database(val))
-        self.dbnames.append(val)
+        if val not in self.dbclass:
+            sqlite3.connect(val)
+            self.dbclass.append(Database(val))
+            self.dbnames.append(val)
+        else:
+            print("Already IN")
 
     def open_tc(self):
         TableCreator(self)
@@ -545,9 +549,9 @@ class TableCreator():
     frame_middle = None
     frame_bottom = None
     types = {
-        "Name / Address / Email": "varchar(250)",
-        "Counting Number": "int",
-        "Money": "float",
+        "Name / Number / Address": "varchar(20)",
+        "Whole Number": "int",
+        "Money (Decimal)": "float",
         "Date": "date",
         "Description": "text"
     }
@@ -610,13 +614,7 @@ class TableCreator():
             entry.grid(row=0, column=0, padx=5, sticky="ew")
             self.entries.append(entry)
 
-            combobox = ctk.CTkComboBox(row_frame, values=[
-                "Name / Address",
-                "Counting Number",
-                "Money",
-                "Date",
-                "Description"
-            ])
+            combobox = ctk.CTkComboBox(row_frame, values=[i for i in self.types.keys()])
             combobox.set('')
             combobox.grid(row=0, column=1, padx=5, sticky="ew")
             self.comboboxes.append(combobox)
@@ -671,7 +669,7 @@ class TableCreator():
         """
         father= Database(host+".db")
 
-        columns = [f"{tname}Id INTEGER PRIMARY KEY AUTOINCREMENT"]#VJ THIS need to be kept here before u read all those colum names
+        columns = [f"{tname.replace(" ","_")}_ID INTEGER PRIMARY KEY AUTOINCREMENT"]#VJ THIS need to be kept here before u read all those colum names
 
 
         i = 0
@@ -682,8 +680,8 @@ class TableCreator():
         columns.append("Input_Date DATE")
         if tname and self.isFull(columns): #if both exist, proceed
             columns_str = ", ".join(columns)
-            self.parent.tables.append(tname)
-            self.parent.c.execute(f"CREATE TABLE {tname} ({columns_str});")
+            father.tables.append(tname)
+            father.c.execute(f"CREATE TABLE {tname.replace(" ","_")} ({columns_str});")
             self.type_to_console("Submitted!")
         else:
             self.type_to_console("Fill All Columns")
