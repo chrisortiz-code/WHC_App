@@ -1,9 +1,7 @@
 import os
 import sqlite3
 import datetime as dt
-import tkinter
 from tkinter import ttk
-
 import customtkinter as ctk
 
 class Database:
@@ -23,14 +21,16 @@ class Database:
     def remove_table(self, tname) -> None:
         self.c.execute(f"DROP TABLE {tname};")
         self.conn.commit()
-        self.type_to_console(f"{tname} Deleted")
 
     def get_name(self):
         name = []
         for c in self.path:
             if c == '.':
                 break
-            name.append(c)
+            if c != '_':
+                name.append(c)
+            else:
+                name.append(" ")
         return "".join(name)
 
     def load_tables(self):
@@ -40,108 +40,31 @@ class Database:
 
 
 class Table:
-    app=None
+    host=None
     parent = None
     name = None
     cols = {}
     colarr = []
     colinps = []
-    entries = []##
+    entries = []#
     window = None
     del_ent = None
-    search_ent = None
     listbox = None
-    tree = None
-    input_frame=None
+    table_tree = None
+    sw_frame=None
     frame_bottom = None
     console = None
     search_bar=None
     sort_box=None
-    ascdesc=None
+    ascswitch=None
     bar_frame=None
 
-    def __init__(self, db, i: int,app):
+    def __init__(self, db, i: int,host):
         self.parent = db
-        self.app=app
+        self.host=host
         self.name = db.tables[i]
         self.gather_cols()
         self.open_window()
-
-    def type_to_console(self, message: str):
-        self.console.configure(state='normal')
-        self.console.delete("1.0", ctk.END)
-        self.console.insert("1.0", message)
-        self.console.configure(state='disabled')
-
-    def delete_entry(self, id) -> None:
-        self.parent.c.execute(f"SELECT * FROM {self.name} WHERE {self.name}id = ?", (id,))
-        result = self.parent.c.fetchone()
-        if result:
-            self.parent.c.execute(f"DELETE FROM {self.name} WHERE id=?;", (id,))
-            self.type_to_console(f"Instance with ID: {id} Deleted")
-        else:
-            self.type_to_console(f"Instance with ID: {id} Does Not Exist")
-
-    def show_table(self):
-
-        label = ctk.CTkLabel(self.window, text=self.name, font=("Helvetica", 24))
-        label.grid(row=0, column=0, padx=10,  sticky="nsew")
-
-
-        self.bar_frame=ctk.CTkFrame(self.window,height=25)
-        self.bar_frame.grid(row=1, columnspan=4, sticky ='nsew' )
-        self.make_search_frame()
-
-
-        self.tree = ttk.Treeview(self.window, show="headings")
-        self.tree.grid(row=2, sticky="nsew")
-        self.tree["columns"] = self.colarr
-
-        for col in self.colarr:
-            self.tree.heading(col, text=col)
-            self.tree.column(col, anchor=ctk.W)
-
-        rows = self.get_rows()
-
-        for row in rows:
-            self.tree.insert("", ctk.END, values=row)
-
-    def make_search_frame(self):
-        # Configure the grid layout for the parent frame
-        self.bar_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5, 6, 7, 8), weight=1)
-
-        # Create the search bar entry
-        self.search_bar = ctk.CTkEntry(self.bar_frame)
-        self.search_bar.grid(row=0, column=0, columnspan=2, sticky='nsew')
-
-        # Create the search button
-        self.search_button = ctk.CTkButton(self.bar_frame, text="\U0001F50D Search", command=lambda: self.search_filter(self.search_bar.get()))
-        self.search_button.grid(row=0, column=2, sticky='nsew')
-
-        # Prepare the sort list
-        sortlist = []
-        for i in self.colinps:
-            if self.cols[i] in ["INT", "FLOAT", "DATE"]:
-                sortlist.append(i)
-
-        # Create the ComboBox
-        self.listbox = ctk.CTkComboBox(self.bar_frame, values=sortlist)
-        self.listbox.set(self.colarr[0])  # Set the initial value
-        self.listbox.grid(row=0, column=3, columnspan=2, sticky='nsew')
-
-        # Create the switch
-        switch_var = ctk.IntVar()
-        self.ascdesc = ctk.CTkSwitch(self.bar_frame, text="\u2191/\u2193", variable=switch_var, offvalue=0, onvalue=1)
-        self.ascdesc.grid(row=0, column=5, sticky='nsew')
-
-        # Set the command for the switch
-        self.ascdesc.configure(command=self.switch_callback)
-
-    def switch_callback(self):
-            self.sort_table(self.listbox.get(),self.ascdesc.get())
-
-
-
 
 
     def search_filter(self,text):
@@ -157,9 +80,8 @@ class Table:
         params = [f"%{text}%"] * len(self.cols)
 
         self.parent.c.execute(query, params)
-        #show this table veej
 
-    def sort_table(self, col, dir: int) -> None:
+    def order_table(self, col, dir: int) -> None:
         """
         Takes in
         choice from all columns of type (number, money, date),
@@ -167,6 +89,10 @@ class Table:
         ->
         displays table accordingly
         """
+        # Apply the row tags
+        self.table_tree.tag_configure('evenrow', background='white', foreground='black')
+        self.table_tree.tag_configure('oddrow', background='light grey', foreground='black')
+
         if dir==1:
             order="DESC"
         else:
@@ -174,10 +100,19 @@ class Table:
 
         self.parent.c.execute(f"SELECT * FROM {self.name} ORDER BY {col} {order}")
 
-    def get_rows(self) -> list:
-        self.parent.c.execute(f"SELECT * FROM {self.name};")
-        rows = self.parent.c.fetchall()
-        return rows
+        self.table_tree.delete(*self.table_tree.get_children())
+        newrows = self.parent.c.fetchall()
+
+        if len(newrows)>10:
+            scrollbar = ttk.Scrollbar(self.window, orient='vertical', command=self.table_tree.yview)
+            scrollbar.grid(row=2, column=11)
+            self.table_tree.configure(yscrollcommand=scrollbar.set)
+        for j,newrow in enumerate(newrows):
+            if j%2==0:
+                self.table_tree.insert("", ctk.END, values=newrow, tags='oddrow')
+            else:
+                self.table_tree.insert("", ctk.END, values=newrow, tags='evenrow')
+
 
     def gather_cols(self):
         self.parent.c.execute(f"PRAGMA TABLE_INFO({self.name});")
@@ -188,24 +123,139 @@ class Table:
 
     def open_window(self):
         self.window = ctk.CTk()
-        self.window.geometry('500x500')
-        self.window.grid_columnconfigure((0, 1, 2, 3), weight=1)
-        self.window.grid_rowconfigure((0, 1, 2, 3), weight=1)
+        self.window.geometry('1000x800')
 
+        # Configure grid layout of the main window
+        for i in range(11):
+            self.window.grid_rowconfigure(i, weight=(1 if i == 2 else 0))  # Row 2 for treeview
+        self.window.grid_columnconfigure((0, 1), weight=1)
+
+
+        # Title bar
+        title = ctk.CTkLabel(self.window, text=self.name.replace("_", " "), font=("Helvetica", 24))
+        title.grid(row=0, column=0, columnspan=2, padx=10, sticky="nsew")
+
+        # Show table and other frames
+        self.make_search_frame()
         self.show_table()
-        label = ctk.CTkLabel(self.window, text="Remove By ID")
-        label.grid(row=3, column=0, padx=5)
-        self.del_ent = ctk.CTkEntry(self.window)
-        self.del_ent.grid(row=5, column=0, padx=5)
-        remove_confirm = ctk.CTkButton(self.window, text="Confirm", command=self.read_del)
-        remove_confirm.grid(row=6, column=0, padx=5)
-        button = ctk.CTkButton(self.window, text="Close", command=self.window.destroy)
-        button.grid(row=7, column=0, padx=5)
-        self.frame_bottom = ctk.CTkFrame(self.window)
-        self.frame_bottom.grid(row=8, column=0)
-        self.console = ctk.CTkTextbox(self.frame_bottom, height=4, width=200, state="disabled")
-        self.console.grid(row=0, column=0)
+        self.south_east_frame()
+        self.south_west_frame()
+
         self.window.mainloop()
+
+    def make_search_frame(self):
+        self.bar_frame = ctk.CTkFrame(self.window)
+        self.bar_frame.grid(row=1, column=0, columnspan=2, sticky='nsew')
+        # Configure the grid layout for the parent frame
+        self.bar_frame.grid_columnconfigure(list(range(41)), weight=1)
+
+        # Create the search bar entry
+        contextlabel = ctk.CTkLabel(self.bar_frame, text="Find Matches:")
+        contextlabel.grid(row=0, column=0, sticky='nsew')
+        self.search_bar = ctk.CTkEntry(self.bar_frame)
+        self.search_bar.grid(row=0, column=1, columnspan=5, sticky='nsew')
+
+        # Create the search button
+        self.search_button = ctk.CTkButton(self.bar_frame, text="\U0001F50D", command=lambda: self.search_filter(self.search_bar.get()))
+        self.search_button.grid(row=0, column=6, sticky='nsew')
+
+        # Prepare the sort list
+        sortlist = []
+        for i in self.colinps:
+            if self.cols[i] in ["INT", "FLOAT", "DATE"]:
+                sortlist.append(i)
+
+        # Create the ComboBox
+        context_label = ctk.CTkLabel(self.bar_frame, text="Sort by:")
+        context_label.grid(column=34, row=0, sticky='nsew')
+        self.listbox = ctk.CTkComboBox(self.bar_frame, values=sortlist)
+        self.listbox.set(self.colarr[0])  # Set the initial value
+        self.listbox.grid(row=0, column=35, columnspan=5, sticky='nsew')
+
+        # Create the switch
+        switch_var = ctk.IntVar()
+        self.ascswitch = ctk.CTkSwitch(self.bar_frame, text="\u2191/\u2193", variable=switch_var, offvalue=0, onvalue=1)
+        self.ascswitch.grid(row=0, column=40, sticky='nsew')
+
+        # Set the command for the switch
+        self.ascswitch.configure(command=self.switch_callback)
+
+    def show_table(self):
+        style=ttk.Style()
+        style.theme_use("default")
+        style.configure("Treeview",
+                        fieldbackground="grey",
+                        foreground="white",
+                        rowheight=25,  # Adjust row height for better visual of borders
+                        bordercolor="black",
+                        borderwidth=1)
+        self.table_tree = ttk.Treeview(self.window, show="headings", style="Treeview")
+        self.table_tree.grid(row=2, column=0, columnspan=2, rowspan=10, sticky="nsew")
+        self.table_tree["columns"] = self.colarr
+
+
+        for col in self.colarr:
+            self.table_tree.heading(col, text=col.replace("_", " "))
+            self.table_tree.column(col, anchor=ctk.W)
+
+        self.order_table(self.colarr[0], 0)
+
+
+    def south_west_frame(self):
+        self.sw_frame = ctk.CTkFrame(self.window)
+        self.sw_frame.grid(row=11, column=0, sticky="nsew")
+        framelabel = ctk.CTkLabel(self.sw_frame, text="Add an Entry")
+        framelabel.grid(row=0, columnspan=len(self.colinps))
+
+        for i, col in enumerate(self.colinps):
+            label = ctk.CTkLabel(self.sw_frame, text=f"{col.replace('_', ' ')}:")
+            label.grid(row=1, column=i, padx=5)
+            entry = ctk.CTkEntry(self.sw_frame)
+            entry.grid(row=2, column=i, padx=5)
+            self.entries.append(entry)
+        button = ctk.CTkButton(self.sw_frame, text="Submit", command=self.submit_entry)
+        button.grid(row=3, columnspan=len(self.colarr),pady=(0,4))
+        self.update_label = ctk.CTkLabel(self.sw_frame, text="Update Entry")
+        self.update_label.grid(row=4, column=0)
+        self.update_id_entry = ctk.CTkEntry(self.sw_frame,placeholder_text="ID")
+        self.update_id_entry.grid(row=4,column=1, columnspan=int(len(self.colarr)/2)-1)
+        update_button= ctk.CTkButton(self.sw_frame, text="Update", command=self.open_update_window_callback)
+        update_button.grid(row=4, columnspan=int(len(self.colarr)/2),column=int(len(self.colarr)/2)+1)
+
+    def open_update_window_callback(self):
+        id=self.update_id_entry.get()
+        self.open_update_window(id)
+    def south_east_frame(self):
+        self.se_frame = ctk.CTkFrame(self.window)
+        self.se_frame.grid(row=11, column=1, sticky="nsew")
+        self.se_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        label = ctk.CTkLabel(self.se_frame, text="Remove By ID:")
+        label.grid(row=0, column=0, padx=5,pady=5, sticky="nsew")
+        self.del_ent = ctk.CTkEntry(self.se_frame)
+        self.del_ent.grid(row=0, column=1, columnspan=2, padx=5,pady=5)
+        remove_confirm = ctk.CTkButton(self.se_frame, text="Confirm", command=self.read_del)
+        remove_confirm.grid(row=0, column=3, padx=5,pady=5)
+        self.console = ctk.CTkTextbox(self.se_frame, state="disabled", height=80
+                                      )
+        self.console.grid(row=1, column=0, columnspan=4, sticky="nsew")
+
+    def switch_callback(self):
+        self.order_table(self.listbox.get(), self.ascswitch.get())
+
+    def type_to_console(self, text):
+        self.console.configure(state="normal")
+        self.console.insert("end", text)
+        self.console.configure(state="disabled")
+
+    def delete_entry(self, id) -> None:
+        self.parent.c.execute(f"SELECT * FROM {self.name} WHERE {self.name}id = ?", (id,))
+        result = self.parent.c.fetchone()
+        if result:
+            self.parent.c.execute(f"DELETE FROM {self.name} WHERE id=?;", (id,))
+            self.type_to_console(f"Instance with ID: {id} Deleted")
+        else:
+            self.type_to_console(f"Instance with ID: {id} Does Not Exist")
+
 
     def read_del(self):
         i = self.del_ent.get()
@@ -216,35 +266,47 @@ class Table:
         placeholders = ','.join(['?'] * len(entry))
         self.parent.c.execute(f"INSERT INTO {self.name} VALUES (NULL, {placeholders});", entry)#Space for -ID Col
         self.parent.conn.commit()
-        self.tree.insert('', ctk.END, values=entry)
+        self.table_tree.insert('', ctk.END, values=["ID"] + entry)
 
     def submit_entry(self):
         vals = [i.get() for i in self.entries]
-        if self.isFull(vals):
+        if all(vals):
             self.add_entry(vals)
             self.type_to_console("Entry Submitted!")
         else:
             self.type_to_console("Fill all Entries")
 
-    def isFull(self, vals) -> bool:
-        return all(vals)
+    def open_update_window(self, id):
 
-    def display_add_frame(self):
-        self.input_frame = ctk.CTkFrame(self.parent.window)
-        framelabel = ctk.CTkLabel(self.input_frame, text="Add a Table")
-        framelabel.grid(row=0,columnspan=len(self.parent.colinps),pady=5)
-        self.input_frame.grid(row=6, column=0, padx=5, pady=5)
-        for i, col in enumerate(self.parent.colinps):
-            label = ctk.CTkLabel(self.input_frame, text=f"{col}:")
-            label.grid(row=1, column=i, padx=5, pady=5)
-            entry = ctk.CTkEntry(self.input_frame)
-            entry.grid(row=2, column=i, padx=5, pady=5)
-            self.entries.append(entry)
-        button = ctk.CTkButton(self.input_frame, text="Submit", command=self.submit_entry)
-        button.grid(row=3, columnspan=len(self.parent.colarr), pady=5)
+        self.update_entries = []
+        self.update_window=ctk.CTkToplevel(self.window)
+        self.update_window.geometry("600x110")
+        self.update_window.title(f"Update Entry #{id}")
+        for k,i in enumerate(self.colinps):
+            label = ctk.CTkLabel(self.update_window, text=f"{i.replace('_', ' ')}:")
+            label.grid(row=0, column=k)
+            entry = ctk.CTkEntry(self.update_window,placeholder_text=self.parent.c.execute(f"SELECT {i} FROM {self.name} WHERE {self.name}_ID = ?", (id,)).fetchone()[0])
+            entry.grid(row=1, column=k)
+            self.update_entries.append(entry)
+        button = ctk.CTkButton(self.update_window, text="Submit", command=lambda: self.update_entry(id))
+        self.update_window.grid_columnconfigure(list(range(len(self.colinps))), weight=1)
+        self.update_window.grid_rowconfigure(1, weight=1)
+        button.grid(row=2, columnspan=len(self.colinps))
 
+    #update an entry
+    def update_entry(self, id):
+        filled_in = [i.get() for i in self.update_entries]
+        for j,i in enumerate(filled_in):
+            if i == "":
+                filled_in[j]=self.parent.c.execute(f"SELECT {self.colinps[j]} FROM {self.name} WHERE {self.name}_ID = ?", (id,)).fetchone()[0]
+        sqlstring= ""
+        for i in range(len(self.colinps)):
+            sqlstring+=f"{self.colinps[i]}={filled_in[i]}, "
+        self.parent.c.execute(f"UPDATE {self.name} SET {self.name} = ? WHERE {self.name}_ID = ?", (filled_in, id))
+        self.parent.conn.commit()
+        self.order_table(self.colarr[0], 0)
 
-class App():
+class App:
     window = None
     dbclass = []
     home = None
@@ -255,8 +317,8 @@ class App():
 
     def __init__(self):
         self.window = ctk.CTk()
+        self.apply_font(self.window)
         self.get_databases()
-        print(self.dbclass,self.dbnames)
 
         # configure window
         self.window.title("WHMC Database")
@@ -266,13 +328,13 @@ class App():
         self.load_grid()
 
         # create sidebar frame with widgets
-        self.load_sideFrame()
+        self.load_west_Frame()
 
         # create main entry and button
         self.load_bottom_textEntry()
 
-        # create textbox
-        self.load_textBox()
+        # create console
+        self.load_console()
 
         # create tabview
         self.load_tabsBox()
@@ -302,7 +364,7 @@ class App():
         # self.slider_2.configure(command=self.window.progressbar_3.set)
         # self.progressbar_1.configure(mode="indeterminnate")
         # self.progressbar_1.start()
-        # self.textbox.insert("0.0", "CTkTextbox\n\n" +
+        # self.console.insert("0.0", "CTkTextbox\n\n" +
         #                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor "
         #                    "invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n\n" * 20)
         # self.seg_button_1.configure(values=["CTkSegmentedButton", "Value 2", "Value 3"])
@@ -319,26 +381,21 @@ class App():
         for i in db_files:
             p = Database(i)
             self.dbclass.append(p)
-            self.dbnames.append(p.name)
-
-    # def load_all_dbs(self):
-    #     for k in self.dbclass:
-    #         (k)
+            self.dbnames.append(p.name.replace("_", " "))
 
     def create_database(self):
         dialog = ctk.CTkInputDialog(text="Database Name", title="Create Database")
         self.add_db(dialog.get_input())
 
-    def change_appearance_mode_event(self, new_appearance_mode: str):
-        ctk.set_appearance_mode(new_appearance_mode)
+    #def change_appearance_mode_event(self, new_appearance_mode: str):
+        #ctk.set_appearance_mode(new_appearance_mode)
 
-    def change_scaling_event(self, new_scaling: str):
-        new_scaling_float = int(new_scaling.replace("%", "")) / 100
-        ctk.set_widget_scaling(new_scaling_float)
+    #def change_scaling_event(self, new_scaling: str):
+       # new_scaling_float = int(new_scaling.replace("%", "")) / 100
+       # ctk.set_widget_scaling(new_scaling_float)
 
     def sidebar_button_event(self):
-        print("sidebar_button click")
-        self.textbox.insert("0.0", "sidebar_button click\n\n")
+        self.console.insert("0.0", "sidebar_button click\n\n")
 
     # load checkbox frame
     def load_checkbox_frame(self):
@@ -395,7 +452,7 @@ class App():
     def load_radioButton_frame(self):
         self.radiobutton_frame = ctk.CTkFrame(self.window)
         self.radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        self.radio_var = tkinter.IntVar(value=0)
+        self.radio_var = ctk.IntVar(value=0)
         self.label_radio_group = ctk.CTkLabel(master=self.radiobutton_frame, text="CTkRadioButton Group:")
         self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10, pady=10, sticky="")
         self.radio_button_1 = ctk.CTkRadioButton(master=self.radiobutton_frame,
@@ -420,42 +477,10 @@ class App():
                 self.tabview.tab(i.name).grid_columnconfigure((0, 1, 2, 3), weight=1)
                 self.tabview.tab(i.name).grid_rowconfigure((0, 1, 2, 3), weight=1)
                 self.table_buttons(i)
-
-
-        #self.tabview.tab("DB1").grid_columnconfigure((0, 1, 2, 3), weight=1)   # configure grid of individual tabs
-        #self.tabview.tab("DB1").grid_rowconfigure((0, 1, 2, 3), weight=1)
-        #self.tabview.tab("DB2").grid_columnconfigure(0, weight=1)
-
-        #self.testbutton_tabview = ctk.CTkButton(self.tabview.tab("DB1"), text="table 4",
-        #                                                  command=self.sidebar_button_event)
-        #self.testbutton_tabview.grid(row=0, column=1, padx=20, pady=(10, 10))
-        #
-        #self.testbutton_tabview2 = ctk.CTkButton(self.tabview.tab("DB1"), text="table 5",
-        #                                                   command=self.open_tc)
-        #self.testbutton_tabview2.grid(row=0, column=2, padx=20, pady=(10, 10))
-        #
-        #self.testbutton_tabview3 = ctk.CTkButton(self.tabview.tab("DB1"), text="table 6",
-        #                                                   command=self.sidebar_button_event)
-        #self.testbutton_tabview3.grid(row=3, column=0, padx=20, pady=(10, 10))
-
-        #self.testbutton_tabview4 = ctk.CTkButton(self.tabview.tab("DB1"), text="table 7",
-        #                                                   command=self.sidebar_button_event)
-        #self.testbutton_tabview4.grid(row=0, column=3, padx=20, pady=(10, 10))
-
-        #self.optionmenu_1 = ctk.CTkOptionMenu(self.tabview.tab("DB1"), dynamic_resizing=False,
-        #                                                values=["Value 1", "Value 2", "Value Long Long Long"])
-        #self.optionmenu_1.grid(row=0, column=0, padx=20, pady=(20, 10))
-        #self.combobox_1 = ctk.CTkComboBox(self.tabview.tab("DB1"),
-        #                                            values=["Value 1", "Value 2", "Value Long....."])
-        #self.combobox_1.grid(row=1, column=0, padx=20, pady=(10, 10))
-
-        #self.label_tab_2 = ctk.CTkLabel(self.tabview.tab("DB2"), text="CTkLabel on Tab 2")
-        #self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
-
-    # loads main textbox
-    def load_textBox(self):
-        self.textbox = ctk.CTkTextbox(self.window, width=250)
-        self.textbox.grid(row=1, column=1, columnspan=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
+    # loads main console
+    def load_console(self):
+        self.console = ctk.CTkTextbox(self.window, width=250,state="disabled")
+        self.console.grid(row=1, column=1, columnspan=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
 
     # loads bottom text entry bar
     def load_bottom_textEntry(self):
@@ -472,7 +497,7 @@ class App():
         self.window.grid_rowconfigure((1, 2), weight=1)
 
     # load "ctk" Sideframe with 3 buttons and 2 drop menus
-    def load_sideFrame(self):
+    def load_west_Frame(self):
         self.sidebar_frame = ctk.CTkFrame(self.window, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
@@ -492,21 +517,25 @@ class App():
                                               font=ctk.CTkFont(size=20),
                                               command=self.load_tabsBox, width=220, height=50)
         self.sidebar_button_4.grid(row=4, column=0, padx=20, pady=10)
-        self.appearance_mode_label = ctk.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.sidebar_frame,
-                                                             values=["Light", "Dark", "System"],
-                                                             command=self.change_appearance_mode_event)
-        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
-        self.scaling_label = ctk.CTkLabel(self.sidebar_frame, text="UI Scaling:", anchor="w")
-        self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = ctk.CTkOptionMenu(self.sidebar_frame,
-                                                     values=["80%", "90%", "100%", "110%", "120%"],
-                                                     command=self.change_scaling_event)
-        self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
-        self.appearance_mode_optionemenu.set("Dark")
-        self.scaling_optionemenu.set("100%")
+        # self.appearance_mode_label = ctk.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
+        # self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
+        # self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.sidebar_frame,
+        #                                                      values=["Light", "Dark", "System"],
+        #                                                      command=self.change_appearance_mode_event)
+        # self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
+        # self.scaling_label = ctk.CTkLabel(self.sidebar_frame, text="UI Scaling:", anchor="w")
+        # self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
+        # self.scaling_optionemenu = ctk.CTkOptionMenu(self.sidebar_frame,
+        #                                              values=["80%", "90%", "100%", "110%", "120%"],
+        #                                              command=self.change_scaling_event)
+        # self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
+        # self.appearance_mode_optionemenu.set("Dark")
+        # self.scaling_optionemenu.set("100%")
 
+    def apply_font(self,root):
+        self.window.configure(font="Verdana")
+        for child in self.window.winfo_children():
+            self.apply_font(child)
 
     def add_db(self,val):
 
@@ -516,9 +545,15 @@ class App():
             sqlite3.connect(val)
             self.dbclass.append(Database(val))
             self.dbnames.append(val)
+            self.load_tabsBox()
         else:
-            print("Already IN")
+            self.type_to_console("Database already exists")#change to console
 
+    def type_to_console(self, message: str):
+
+        self.console.configure(state="normal")
+        self.console.insert("end", message)
+        self.console.configure(state="disabled")
     def open_tc(self):
         TableCreator(self)
 
@@ -530,13 +565,13 @@ class App():
             self.tab_buttons.append(k)
 
     def make_tab_button(self, i,j):
-        p = ctk.CTkButton(self.tabview.tab(i.name), text=i.tables[j], command=lambda: self.init_table(i,j))
+        p = ctk.CTkButton(self.tabview.tab(i.name), text=i.tables[j].replace("_", " "), command=lambda: self.init_table(i,j))
         p.grid(row=j, column=int(j/4), pady=5)
         p.bind("<Double-Button-1>", lambda: self.init_table(i,j))
         return j
 
     def init_table(self,i:Database,j):
-        Table(i, j,self.window)
+        Table(i, j, self.window)
 
 
 class TableCreator():
@@ -653,23 +688,20 @@ class TableCreator():
             if p!='':
                 typevals.append(p)
 
-        if self.isFull(colvals) & self.isFull(typevals):
+        if all(colvals) & all(typevals):
             self.create_table(self.dbmenu.get(),name, colvals, typevals)
             self.type_to_console("Submitted")
         else:
             self.type_to_console("Fill Rows Properly")
 
-    def isFull(self, vals) -> bool:
-        return all(vals)
-
     def create_table(self,host,tname,cols,types) -> None:
         """
-        On click, new table is made, by reading the entries from vjs application (Table name, col names(LIST), and types[LIST])
+        Creates new table by reading the entries from entry points DB Host,Table Name, Col names and Col types (Lists)
         :return: NONE
         """
         father= Database(host+".db")
 
-        columns = [f"{tname.replace(" ","_")}_ID INTEGER PRIMARY KEY AUTOINCREMENT"]#VJ THIS need to be kept here before u read all those colum names
+        columns = [f"{tname.replace(" ","_")}_ID INTEGER PRIMARY KEY AUTOINCREMENT"]
 
 
         i = 0
@@ -678,7 +710,7 @@ class TableCreator():
                 columns.append(f"{cols[i]} {self.types[types[i]]}")
             i += 1
         columns.append("Input_Date DATE")
-        if tname and self.isFull(columns): #if both exist, proceed
+        if tname and all(cols): #if both exist, proceed
             columns_str = ", ".join(columns)
             father.tables.append(tname)
             father.c.execute(f"CREATE TABLE {tname.replace(" ","_")} ({columns_str});")
