@@ -463,9 +463,9 @@ class Table:
 
         # Prepare the sort list
         sortlist = []
-        for i in self.colTypes:
+        for k,i in enumerate(self.colTypes):
             if i in ["INT", "FLOAT", "DATE"]:
-                sortlist.append(self.colNames[i].replace("_"," "))
+                sortlist.append(self.colNames[k].replace("_"," "))
         # Create the ComboBox
         contextLabel = ctk.CTkLabel(self.barFrame, text="Sort by:")
         contextLabel.grid(column=34, row=0, sticky='nsew')
@@ -560,7 +560,8 @@ class Table:
         selectedItem=self.tableTree.selection()
         if selectedItem:
             vals = self.tableTree.item(selectedItem, 'values')
-            vals=vals[1:-1]
+
+            vals=vals[:-1]
             self.openUpdateWindow(vals)
 
     def openUpdateWindow(self, vals:list):
@@ -569,14 +570,16 @@ class Table:
         self.updateWindow.lift()
         self.updateWindow.focus_force()
         self.updateWindow.geometry("600x110")
-        self.updateWindow.title(f"Update Entry #{vals[0]}")
+        id=vals[0]
+        self.updateWindow.title(f"Update Entry #{id}")
         for k,i in enumerate(self.colInps):
             label = ctk.CTkLabel(self.updateWindow, text=f"{i.replace('_', ' ')}:")
             label.grid(row=0, column=k)
-            entry = ctk.CTkEntry(self.updateWindow, placeholder_text=vals[k])
+            entry = ctk.CTkEntry(self.updateWindow, placeholder_text=vals[k+1])
             entry.grid(row=1, column=k)
             self.updateEntries.append(entry)
-        button = ctk.CTkButton(self.updateWindow, text="Submit", command=lambda: self.updateEntry(vals[0]))
+        print(vals)
+        button = ctk.CTkButton(self.updateWindow, text="Submit", command=lambda: self.updateEntry(id))
 
         self.updateWindow.grid_rowconfigure(1, weight=1)
         button.grid(row=2, columnspan=len(self.colInps))
@@ -637,12 +640,16 @@ class Table:
         vals= [i.get() for i in self.addEntries]
         if all(vals):
             vals.append(dt.datetime.now().strftime("%Y-%m-%d"))#Tag entry date
-            placeholders = ','.join(['?'] * len(self.addEntries))
+            placeholders = ','.join(['?'] * (len(self.addEntries)+1))
             self.parent.connect()
             self.parent.c.execute(f"INSERT INTO {self.name} VALUES (NULL, {placeholders});", vals)#Space for ID Col
             self.parent.conn.commit()
             self.parent.close()
-            rowVals=[int(self.tableTree.item(self.tableTree.get_children()[-1],f"{self.name} ID"))+1] + vals #Gets the last ID <- not input from user
+            prevId=self.tableTree.get_children()[-1]
+            if prevId:
+                rowVals=[int(self.tableTree.item(prevId,f"{self.name.replace("_"," ")} ID"))+1] + vals
+            else:
+                rowVals=[1]+vals
             self.tableTree.insert('', ctk.END, values=rowVals)
             self.TTC("Entry Submitted!")
         else:
@@ -657,6 +664,7 @@ class Table:
             if i != "":
                 sqlstring+=f"{self.colInps[j]}={filledIn[j]}, "
         sqlstring = sqlstring[:-2]
+        print(sqlstring,self.name)
         self.parent.connect()
         self.parent.c.execute(f"UPDATE {self.name} SET {sqlstring} WHERE {self.name}_ID = {id};")
         self.parent.conn.commit()
