@@ -1,55 +1,33 @@
 import customtkinter as ctk
-from tkinter import messagebox
 
-class CheckboxMenu(ctk.CTk):
-    def __init__(self):
-        super().__init__()
+class PhoneEntryFrame(ctk.CTkFrame):
+    def __init__(self, master=None, **kwargs):
+        super().__init__(master, **kwargs)
 
-        self.title("Checkbox Menu")
-        self.geometry("400x300")
+        self.entry1 = ctk.CTkEntry(self, width=40, justify='center')
+        self.entry2 = ctk.CTkEntry(self, width=40, justify='center')
+        self.entry3 = ctk.CTkEntry(self, width=50, justify='center')
 
-        self.tabButtons = [[]]
+        self.entry1.grid(row=0, column=0, padx=(0, 2))
+        ctk.CTkLabel(self, text="-").grid(row=0, column=1)
+        self.entry2.grid(row=0, column=2, padx=(2, 2))
+        ctk.CTkLabel(self, text="-").grid(row=0, column=3)
+        self.entry3.grid(row=0, column=4, padx=(2, 0))
 
-        self.checkbox_vars = {}
+        self.entry1.bind("<KeyRelease>", self.auto_focus)
+        self.entry2.bind("<KeyRelease>", self.auto_focus)
 
-        self.create_checkbox_menu()
-        self.create_save_button()
+    def auto_focus(self, event):
+        widget = event.widget
+        if len(widget.get()) == 3 and widget == self.entry1:
+            self.entry2.focus()
+        elif len(widget.get()) == 3 and widget == self.entry2:
+            self.entry3.focus()
 
-    def create_checkbox_menu(self):
-        frame = ctk.CTkToplevel(self.window)
-        frame.pack(pady=20, padx=20, fill='both', expand=True)
+app = ctk.CTk()
+app.geometry("300x100")
 
-        for i in self.Databases:
-            label = ctk.CTkLabel(frame, text=i.name)
-            label.pack(anchor='w')
+phone_frame = PhoneEntryFrame(app)
+phone_frame.pack(pady=20, padx=20)
 
-            self.checkbox_vars[i] = {}
-            for table in i.tables:
-                var = ctk.IntVar()
-                checkbox = ctk.CTkCheckBox(frame, text=table, variable=var)
-                checkbox.pack(anchor='w', padx=20)
-                self.checkbox_vars[i][table] = var
-
-    def create_save_button(self):
-        save_button = ctk.CTkButton(self, text="Save", command=self.save)
-        save_button.pack(pady=10)
-
-    def save(self):
-        results = {}
-        for db, tables in self.checkbox_vars.items():
-            results[db] = {table: var.get() for table, var in tables.items()}
-
-        self.print_results(results)
-
-    def print_results(self, results):
-        print("Checkbox Results:")
-        for db, tables in results.items():
-            print(f"{db}:")
-            for table, checked in tables.items():
-                print(f"  {table}: {'Checked' if checked else 'Unchecked'}")
-
-        messagebox.showinfo("Results", "Results printed to console")
-
-if __name__ == "__main__":
-    app = CheckboxMenu()
-    app.mainloop()
+app.mainloop()

@@ -4,55 +4,31 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8e66ab4a-de8a-4c4c-abd9-4ae63c8bf5ca" name="Changes" comment="Commit1">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+    <list default="true" id="be3af09c-dd01-4d24-8172-2ba019c5b5ca" name="Changes" comment="Commit2">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Databases/Employees.db" beforeDir="false" afterPath="$PROJECT_DIR$/Databases/Employees.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Databases/Events.db" beforeDir="false" afterPath="$PROJECT_DIR$/Databases/Events.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auxiliaries/favourites.txt" beforeDir="false" afterPath="$PROJECT_DIR$/auxiliaries/favourites.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/classes.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vjcurr.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/tester.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ChangesViewManager" show_ignored="true" />
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Script" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="PUSH_TAGS">
-      <GitPushTagMode>
-        <option name="argument" value="--tags" />
-        <option name="title" value="All" />
-      </GitPushTagMode>
-    </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="WHCAPP" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="MIXED" />
-    <option name="SHOW_RECENT_BRANCHES" value="false" />
-    <option name="UPDATE_TYPE" value="REBASE" />
-  </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="SWAP_SIDES_IN_COMPARE_BRANCHES" value="true" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 8
+  &quot;associatedIndex&quot;: 0
 }</component>
-  <component name="ProjectId" id="2i7yYB8pwHPWsiyX3OUcfba0kT6" />
+  <component name="ProjectId" id="2ivhEO3bCoVPXqNw8ovYGn4mEFP" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
@@ -62,38 +38,20 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Python.TableCreator.executor": "Run",
+    "Python.classes.executor": "Run",
     "Python.main.executor": "Run",
-    "Python.mainApp.executor": "Run",
-    "Python.tabtry.executor": "Run",
     "Python.tester.executor": "Run",
-    "Python.vjcurr.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Chris/Desktop/Creations/WHC_App",
     "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Artifacts",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Chris\Desktop\Creations\WHC_App" />
-      <recent name="C:\Users\Chris\Desktop\Creations\database_current\auxilliaries" />
-    </key>
-  </component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="WHC_App" />
@@ -135,89 +93,18 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="8e66ab4a-de8a-4c4c-abd9-4ae63c8bf5ca" name="Changes" comment="" />
-      <created>1718855954891</created>
+      <changelist id="be3af09c-dd01-4d24-8172-2ba019c5b5ca" name="Changes" comment="Commit2" />
+      <created>1720376847813</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1718855954891</updated>
-      <workItem from="1718855956009" duration="22000" />
-      <workItem from="1718855985103" duration="996000" />
-      <workItem from="1718906060736" duration="508000" />
-      <workItem from="1718906580365" duration="8852000" />
-      <workItem from="1718917549131" duration="1684000" />
-      <workItem from="1718924607498" duration="24009000" />
-      <workItem from="1719266178270" duration="15183000" />
-      <workItem from="1719337566789" duration="1099000" />
-      <workItem from="1719338688851" duration="11780000" />
-      <workItem from="1719353170364" duration="15066000" />
-      <workItem from="1719683135594" duration="7410000" />
-      <workItem from="1719802321953" duration="2398000" />
-      <workItem from="1719934842161" duration="1517000" />
-      <workItem from="1719936606136" duration="3074000" />
-      <workItem from="1719939789567" duration="5363000" />
-      <workItem from="1719945561328" duration="1117000" />
-      <workItem from="1719947019091" duration="124000" />
-      <workItem from="1719947149582" duration="55562000" />
-      <workItem from="1720221358609" duration="3913000" />
-      <workItem from="1720225760836" duration="55000" />
-      <workItem from="1720225833646" duration="84000" />
-      <workItem from="1720226047204" duration="23000" />
-      <workItem from="1720226179030" duration="14000" />
-      <workItem from="1720297457149" duration="3795000" />
-      <workItem from="1720316901097" duration="3820000" />
-      <workItem from="1720320740207" duration="173000" />
-      <workItem from="1720320918811" duration="814000" />
-      <workItem from="1720321762152" duration="980000" />
-      <workItem from="1720322761370" duration="1772000" />
+      <updated>1720376847813</updated>
+      <workItem from="1720376851095" duration="64000" />
+      <workItem from="1720376919232" duration="4032000" />
     </task>
-    <task id="LOCAL-00001" summary="Commit1">
-      <option name="closed" value="true" />
-      <created>1718856836427</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1718856836427</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Commit1">
-      <option name="closed" value="true" />
-      <created>1719334556708</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1719334556708</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Commit1">
-      <option name="closed" value="true" />
-      <created>1719338200384</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1719338200384</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Commit1">
-      <option name="closed" value="true" />
-      <created>1719683640064</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1719683640064</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Commit1">
-      <option name="closed" value="true" />
-      <created>1720320613674</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1720320613674</updated>
-    </task>
-    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="UnknownFeatures">
-    <option featureType="com.intellij.fileTypeFactory" implementationName="*.py" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -225,11 +112,6 @@
         <entry key="MAIN">
           <value>
             <State>
-              <option name="CUSTOM_BOOLEAN_PROPERTIES">
-                <map>
-                  <entry key="Show.Git.Branches" value="true" />
-                </map>
-              </option>
               <option name="FILTERS">
                 <map>
                   <entry key="branch">
@@ -248,19 +130,15 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Commit1" />
-    <option name="LAST_COMMIT_MESSAGE" value="Commit1" />
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
+    <MESSAGE value="Commit2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Commit2" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/WHC_App$main.coverage" NAME="main Coverage Results" MODIFIED="1720375497012" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/WHC_App$main.coverage" NAME="main Coverage Results" MODIFIED="1720403691831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/database_current$mainApp.coverage" NAME="mainApp Coverage Results" MODIFIED="1720194565097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/database_current$vjcurr.coverage" NAME="vjcurr Coverage Results" MODIFIED="1720016870570" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/WHC_App$tester.coverage" NAME="tester Coverage Results" MODIFIED="1720304251040" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/WHC_App$classes.coverage" NAME="classes Coverage Results" MODIFIED="1720403252058" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/WHC_App$tester.coverage" NAME="tester Coverage Results" MODIFIED="1720378127426" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/database_current$tester.coverage" NAME="tester Coverage Results" MODIFIED="1720034872695" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/WHC_App$mainApp.coverage" NAME="main Coverage Results" MODIFIED="1720224326743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/database_current$TableCreator.coverage" NAME="TableCreator Coverage Results" MODIFIED="1718925670524" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

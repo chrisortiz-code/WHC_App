@@ -24,6 +24,7 @@ class App:
     favourites=[]
     favsCheckbox=[]
     favouritesPopup=None
+    importFrame=None
 
     def __init__(self):
         self.window = ctk.CTk()
@@ -385,9 +386,16 @@ class App:
             self.resetButton(self.selection[0],self.selection[1])
             self.selection=""
 
-    #need import table, open dialoog, columns in file or nah
-    #yes pick db and read
-    #no table creator, then insert
+    def openImport(self):
+        if self.importFrame:
+            self.importFrame.destroy()
+        self.importFrame=ctk.CTkToplevel(self.window)
+        #select database to go into,
+        # table title,
+        # columns in csv file if no, use tablecreator
+        # file input spot,
+        #confirm
+        #prob needs a console meaning class
 
 class Table:
     host=None
@@ -645,12 +653,7 @@ class Table:
             self.parent.c.execute(f"INSERT INTO {self.name} VALUES (NULL, {placeholders});", vals)#Space for ID Col
             self.parent.conn.commit()
             self.parent.close()
-            prevId=self.tableTree.get_children()[-1]
-            if prevId:
-                rowVals=[int(self.tableTree.item(prevId,f"{self.name.replace("_"," ")} ID"))+1] + vals
-            else:
-                rowVals=[1]+vals
-            self.tableTree.insert('', ctk.END, values=rowVals)
+            self.orderTable()
             self.TTC("Entry Submitted!")
         else:
             self.TTC("Fill all Entries")
@@ -725,10 +728,11 @@ class TableCreator:
     frameMiddle = None
     frameBottom = None
     types = {
-        "Name / Number / Address": "varchar(20)",
+        "Name / Address": "varchar(20)",
         "Whole Number": "int",
         "Money (Decimal)": "float",
         "Date": "date",
+        "Phone Number": "varchar(11)",
         "Description": "text"
     }
 
