@@ -868,7 +868,7 @@ class Database:
         else:
             raise ValueError
 
-
+print("hello")
 class TableCreator:
     def __init__(self, parent: App):
         self.parent = parent
