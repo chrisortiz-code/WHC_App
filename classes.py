@@ -29,7 +29,7 @@ class App:
         Import Table - self.importTable
 
     """
-    selection = ""
+    selection = []
     currentTab = ""
     mainScreen = None
     Databases = []
@@ -88,7 +88,7 @@ class App:
         :return:
         """
         # Clear the existing Databases
-        self.selection = ""
+        self.selection = []
         self.Databases.clear()
 
         # Reload the databases
@@ -229,7 +229,7 @@ class App:
 
         self.tabview.tab("Favourites").grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
 
-        def makeFButton(i: int, j: int):
+        def makeFButton(i: int, j: int,k:int):
             """
             favourites tab buttons
             do not support first click methods
@@ -244,17 +244,27 @@ class App:
             button = ctk.CTkButton(self.tabview.tab("Favourites"), text=buttonText,
                                    command=lambda: self.openTable(i, j),
                                    font=self.regFont)
-            button.grid(row=j % 5, column=j // colCount, pady=5)
-            return button
+            button.grid(row=k % 4, column=k // colCount, pady=5)
+
 
         with open('auxiliaries/favourites.txt') as file:
             s = (file.read()).split('\n')
-            colCount = max(len(s) // 5, 4)
+            colCount = max(len(s) // 4, 4)
             self.tabview.tab("Favourites").grid_columnconfigure(list(range(colCount)), weight=1)
+            ind = 0
             for i in (s):
                 if i:
-                    makeFButton(int(i[0]), int(i[2]))
-                    self.favourites.append((int(i[0]), int(i[2])))
+                    d = int(i[0])
+                    # i.1 is letter, get 2: else 1:
+                    try:
+                        int(i[1])
+                        t = int(i[1])
+                    except  ValueError:
+                        t = int(i[2:])
+
+                    makeFButton(d, t,ind)
+                    self.favourites.append((d, t))
+                    ind += 1
 
         #Opens update favourites menu
         updateFavs = ctk.CTkButton(self.tabview.tab("Favourites"), text="Update Favourites",
@@ -323,19 +333,27 @@ class App:
         calls reloadApp
         :return:
         """
+        d = self.selection[0]
+        t = self.selection[1]
+        db = self.Databases[d]
+        
+        db.removeTable(t)
 
-        db = self.Databases[int(self.selection[0])]
-        print(self.selection, db.tables[int(self.selection[1])], len (db.tables))
-        db.removeTable(int(self.selection[1]))
+        name=db.tables[t]
 
-        name=db.tables[int(self.selection[1])]
-        del db.tables[int(self.selection[1])]
-        del self.tabButtons[int(self.selection[0])][int(self.selection[1])]
-        del self.tables[int(self.selection[0])][int(self.selection[1])]
+        del db.tables[t]
+        del self.tabButtons[d][t]
+
+        if t // 10 > 10:
+            t_string = f"C{t}"
+        elif t // 10 > 0:
+            t_string = f"M{t}"
+        else:
+            t_string = f"{t}"
         with open('auxiliaries/favourites.txt', 'r') as file:
             s = (file.read()).split('\n')
         for i in s:
-            if i == f"{self.selection[0]} {self.selection[1]}":
+            if i == f"{d}{t_string}":
                 s.remove(i)
         with open('auxiliaries/favourites.txt', 'w') as file:
             file.writelines(s)
@@ -343,8 +361,9 @@ class App:
         self.showToolTip(f"Table {name} has been deleted.")
 
         self.writeToLog(f"{name} removed from {db.name}")
-        self.selection = ""
+        self.selection = []
         self.reLoadApp()
+
 
     def openTc(self):
         """
@@ -392,9 +411,13 @@ class App:
         results = []
 
         for k, p in enumerate(self.favsCheckbox):
-            for i, j in enumerate(p):
-                if j.get() == 1:
-                    results.append(f"{k} {i}\n")
+            for i, check in enumerate(p):
+                if check.get() == 1:
+                    if i//10>10: i_string=f"C{i}"
+                    elif i//10>0: i_string=f"M{i}"
+                    else: i_string=f"{i}"
+
+                    results.append(f"{k}{i_string}\n")
 
         with open('auxiliaries/favourites.txt', 'w') as file:
             file.writelines(results)
@@ -418,7 +441,7 @@ class App:
             border_width=0,
             text_color="white",
             font=self.regFont)
-        self.selection = ""
+        self.selection = []
 
     def favouritesMenu(self):
         """
@@ -458,8 +481,8 @@ class App:
         :param j: table index
         :return:
         """
-        if self.selection != "":
-            self.resetButton(int(self.selection[0]), int(self.selection[1]))
+        if self.selection != []:
+            self.resetButton(self.selection[0], self.selection[1])
         self.currentTab = self.tabview.get()
         self.tabButtons[i][j].configure(
             command=lambda: self.openTable(i, j),
@@ -472,7 +495,7 @@ class App:
             font=self.regFont
         )
 
-        self.selection = f"{i}{j}"
+        self.selection = [i,j]
 
     def exportTable(self):
         """
@@ -483,11 +506,11 @@ class App:
         reportlab -> PDF
         calls resetButton
         """
-        if self.selection != "":
+        if self.selection != []:
             fileTypes = [("CSV files", "*.csv"), ("PDF files", "*.pdf")]
             filePath = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=fileTypes)
-            d = int(self.selection[0])
-            t = int(self.selection[1])
+            d = self.selection[0]
+            t = self.selection[1]
             db = self.Databases[d]
             table = self.tables[d][t]
 
@@ -509,7 +532,7 @@ class App:
 
                 # Create a Table with the data
                 title = headers[0][:-3]
-                dbName = self.Databases[int(self.selection[0])].name.replace("_", " ")
+                dbName = self.Databases[self.selection[0]].name.replace("_", " ")
                 styles = getSampleStyleSheet()
                 title_style = styles['Title']
 
@@ -545,7 +568,7 @@ class App:
                 elements = [title, spacer, table, spacer2, log]
                 doc.build(elements)
             self.showToolTip(f"Data exported to {filePath} successfully.")
-            self.resetButton(int(self.selection[0]), int(self.selection[1]))
+            self.resetButton(d, t)
 
     def openImport(self):
         """
