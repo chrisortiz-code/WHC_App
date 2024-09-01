@@ -370,9 +370,12 @@ class App:
         opens the TableCreator if there isn't one currently open
         :return:
         """
-        children= [i.title() for i in self.mainScreen.children.values() if isinstance(i, ctk.CTkToplevel)]
-        if "Table Creator" not in children:
-            TableCreator(self)
+        if self.Databases:
+            children= [i.title() for i in self.mainScreen.children.values() if isinstance(i, ctk.CTkToplevel)]
+            if "Table Creator" not in children:
+                TableCreator(self)
+        else:
+            self.showToolTip("Make a Database first")
 
     def openTable(self, i: int, j):
         """
@@ -453,6 +456,7 @@ class App:
             self.favouritesPopup.destroy()
 
         self.favouritesPopup = ctk.CTkToplevel(self.mainScreen)
+        self.favouritesPopup.title('Favourites')
         self.favouritesPopup.geometry = f"{100 * len(self.Databases)}x{40 * 10}"
         self.favouritesPopup.resizable(False, False)
         self.favouritesPopup.lift()
@@ -1269,7 +1273,8 @@ class TableCreator:
                 dbName = self.dbMenu.get().replace(" ", "_")
                 self.createTable(dbName, tableName, columnNames, columnTypes)
                 self.close()
-                self.parent.showToolTip(f"{tableName} generated in {dbName}")
+                self.parent.showToolTip(f"{tableName.replace("_"," ")} generated in {dbName}")
+
                 self.parent.writeToLog(f"Table {tableName} added to {dbName}")
                 self.parent.reLoadApp()
             elif descriptionCount >= 2:
