@@ -323,8 +323,11 @@ class App:
         calls reloadApp
         :return:
         """
+
         db = self.Databases[int(self.selection[0])]
+        print(self.selection, db.tables[int(self.selection[1])], len (db.tables))
         db.removeTable(int(self.selection[1]))
+
         name=db.tables[int(self.selection[1])]
         del db.tables[int(self.selection[1])]
         del self.tabButtons[int(self.selection[0])][int(self.selection[1])]
@@ -337,7 +340,8 @@ class App:
         with open('auxiliaries/favourites.txt', 'w') as file:
             file.writelines(s)
 
-        self.showToolTip("Table has been deleted.")
+        self.showToolTip(f"Table {name} has been deleted.")
+
         self.writeToLog(f"{name} removed from {db.name}")
         self.selection = ""
         self.reLoadApp()
