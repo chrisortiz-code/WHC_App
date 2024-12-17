@@ -1,6 +1,6 @@
 WHC Database Management Application
 Overview
-The WHC Database Management Application is a graphical user interface (GUI) built using CustomTkinter for managing SQLite databases. The app provides tools for creating, managing, exporting, and importing tables within multiple databases. It's designed to simplify database operations and offer an intuitive way to manage relational data.
+The WHC Database Management Application is a graphical user interface (GUI) built using CustomTkinter for managing SQLite databases. The app provides tools for creating, managing, exporting, and importing tables within multiple databases. It's designed for the Welland Heritage Council, to simplify database operations and offer an intuitive way to organize relational data.
 
 Features
 Database Operations:
